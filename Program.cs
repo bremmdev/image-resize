@@ -54,6 +54,7 @@ class ImageResizer
     {
         double currentAspectRatio = (double)currentWidth / currentHeight;
 
+        // If target width is provided, calculate target height
         if (targetWidth is not null)
         {
             if (targetWidth > currentWidth)
@@ -62,6 +63,7 @@ class ImageResizer
             }
             targetHeight = (int)(targetWidth / currentAspectRatio);
         }
+        // If target height is provided, calculate target width
         else if (targetHeight is not null)
         {
             if (targetHeight > currentHeight)
@@ -70,7 +72,8 @@ class ImageResizer
             }
             targetWidth = (int)(targetHeight * currentAspectRatio);
         }
-        return (targetWidth ?? 0, targetHeight ?? 0);
+        // Can't be null because of the validation above but the compiler doesn't know that so we need to use !
+        return (targetWidth!.Value, targetHeight!.Value);
     }
 
     public static void ResizeAndSaveAsWebp(string inputPath, string file, Image image, int targetWidth, int targetHeight)
@@ -86,6 +89,7 @@ class ImageResizer
 class CLIArgumentsValidator
 {
     static readonly string[] ALLOWED_IMAGE_EXTENSIONS = [".jfif", ".jpg", ".jpeg", ".png", ".webp"];
+
     public static void Validate(CLIArguments options)
     {
         if (File.Exists(options.InputPath))
@@ -94,7 +98,6 @@ class CLIArgumentsValidator
             throw new ArgumentException($"Directory '{options.InputPath}' does not exist or is empty.");
         if (options.Width is <= 0)
             throw new ArgumentException("Width must be a positive value.");
-
         if (options.Height is <= 0)
             throw new ArgumentException("Height must be a positive value.");
     }
